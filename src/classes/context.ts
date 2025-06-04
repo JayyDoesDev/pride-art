@@ -12,6 +12,7 @@ import {
 import { Command, Plugin } from '../define';
 
 import { Env } from './env';
+import { Store } from './store';
 
 export class Context extends Client {
     public readonly env!: Env;
@@ -21,6 +22,7 @@ export class Context extends Client {
         Command<ChatInputCommandInteraction | ContextMenuCommandInteraction>
     >;
     public readonly plugin!: ZillaCollection<string, Plugin>;
+    public readonly store!: Store;
 
     constructor() {
         super({
@@ -70,10 +72,16 @@ export class Context extends Client {
                 required: true,
             },
             {
-                aliases: ['db', 'database_url'],
-                env: 'MONGODB',
+                aliases: ['redis_host'],
+                env: 'REDIS_HOST',
+                required: true,
+            },
+            {
+                aliases: ['redis_port'],
+                env: 'REDIS_PORT',
                 required: true,
             },
         );
+        this.store = new Store(this);
     }
 }

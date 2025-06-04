@@ -1,5 +1,4 @@
 import { config } from 'dotenv';
-import mongoose from 'mongoose';
 
 import { Context } from './classes/context';
 config();
@@ -16,20 +15,6 @@ async function main() {
                 return handlerModule.default(context);
             }),
         );
-
-        mongoose.connect(context.env.get('db'));
-
-        mongoose.connection.on('connected', () => {
-            console.log('Connected to MongoDB');
-        });
-
-        mongoose.connection.on('error', (err) => {
-            console.error(`MongoDB connection error: ${err.message}`);
-        });
-
-        mongoose.connection.on('disconnected', () => {
-            console.log('Disconnected from MongoDB');
-        });
 
         await context.login(context.env.get('token'));
     } catch (error) {
