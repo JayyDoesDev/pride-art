@@ -1,0 +1,28 @@
+{
+    "name": "marie-art-submissions",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "author": "JayyDoesDev",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "dev": "yarn build && yarn eslint && node dist/index.js",
+        "eslint": "eslint \"**/*.{ts,mjs,cjs}\" --fix",
+        "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
+    },
+    "dependencies": {
+        "@antibot/interactions": "^1.4.6",
+        "@antibot/zilla": "^1.0.2",
+        "discord.js": "^14.19.3",
+        "dotenv": "^16.5.0",
+        "eslint": "^9.28.0",
+        "eslint-plugin-json": "^4.0.1",
+        "eslint-plugin-perfectionist": "^4.14.0",
+        "glob": "^11.0.2",
+        "mongoose": "^8.15.1",
+        "prettier": "^3.5.3",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.33.1"
+    }
+}
