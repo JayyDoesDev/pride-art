@@ -98,8 +98,28 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                     return;
                 }
 
+                user.images.icon.doing = true;
+                await this.ctx.store.setUserKey({ user: interaction.user.id }, user, suffix);
                 await interaction.reply(
-                    'Alright! Now, what I would like you to do is send your **icon**! Before sending your icon, please make sure your icon follows the format of being **1:1ratio, 500x500px**! Please include the word "icon" in your message and send only one attachment!',
+                    'Alright! Now, what I would like you to do is send your **icon**! Before sending your icon, please make sure your icon follows the format of being **1:1 ratio, 500x500px**! Please include the word "icon" in your message and send only one attachment!',
+                );
+                break;
+
+            case `${suffix}_${interaction.user.id}_banner`:
+                user = await this.ctx.store.getUser<User>({ user: interaction.user.id }, suffix);
+                const alreadyDidBanner = user.images.banner.doing && user.images.banner.url;
+
+                if (alreadyDidBanner) {
+                    await interaction.reply(
+                        "Uh oh! it looks like you've already uploaded your banner!",
+                    );
+                    return;
+                }
+
+                user.images.banner.doing = true;
+                await this.ctx.store.setUserKey({ user: interaction.user.id }, user, suffix);
+                await interaction.reply(
+                    'Alright! Now, what I would like you to do is send your **banner**! Before sending your banner, please make sure your banner follows the format of being **16:9 ratio, 1920x1080px**! Please include the word "banner" in your message and send only one attachment!',
                 );
                 break;
 

@@ -3,8 +3,8 @@ import { ButtonStyle, ComponentType, Message } from 'discord.js';
 import { Context } from '../classes/context';
 import { defineEvent } from '../define';
 
-import { Listener } from './listener';
 import { User } from './interactionCreate.listener';
+import { Listener } from './listener';
 
 export default class MessageCreateListener extends Listener<'messageCreate'> {
     constructor(context: Context) {
@@ -17,7 +17,7 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
 
         if (message.content === 'pride') {
             if (this.ctx.store.findUser({ user: message.author.id }, suffix)) return;
-            message.reply({
+            await message.reply({
                 components: [
                     {
                         components: [
@@ -40,6 +40,7 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
                 content:
                     'Hello! Looks like you want to participate in the **Pride Month Art Competition 🏳️‍🌈**! Is that true?',
             });
+            return;
         }
 
         if (
@@ -57,13 +58,45 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
                 date: user.date,
                 images: {
                     banner: user.images.banner,
-                    icon: { doing: user.images.icon.doing, url: iconUrl},
+                    icon: { doing: user.images.icon.doing, url: iconUrl },
                 },
                 participating: user.participating,
                 small_desc: user.small_desc,
             };
 
             await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
+            await message.reply(
+                'Good job! You\'ve now set your **icon**! if you\'re done and have set a banner or don\'t want to submit a banner, say "done"! This will not work if you don\'t have your description set! (say "description" to say a description)',
+            );
+            return;
+        }
+
+        if (
+            message.content === 'banner' &&
+            message.attachments.size === 1 &&
+            (await this.ctx.store.getUser<User>({ user: message.author.id }, suffix))?.images.banner
+                ?.doing &&
+            !(await this.ctx.store.getUser<User>({ user: message.author.id }, suffix))?.images
+                .banner?.url
+        ) {
+            const bannerUrl = message.attachments.first().url;
+            const user = await this.ctx.store.getUser<User>({ user: message.author.id }, suffix);
+
+            const newData: User = {
+                date: user.date,
+                images: {
+                    banner: { doing: user.images.banner.doing, url: bannerUrl },
+                    icon: user.images.icon,
+                },
+                participating: user.participating,
+                small_desc: user.small_desc,
+            };
+
+            await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
+            await message.reply(
+                'Good job! You\'ve now set your **banner**! if you\'re done and have set a icon or don\'t want to submit a icon, say "done"! This will not work if you don\'t have your description set! (say "description" to say a description)',
+            );
+            return;
         }
     }
 
