@@ -202,7 +202,7 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                     embeds: [
                         {
                             color: Colors.DarkVividPink,
-                            description: `> **Icon:** ${submittedIcon}\n> **Banner:** ${submittedBanner}\n> **Comment:** ${user.small_desc}`,
+                            description: `> **Author:** ${interaction.user}(${interaction.user.id})\n> **Icon:** ${submittedIcon}\n> **Banner:** ${submittedBanner}\n> **Comment:** ${user.small_desc}`,
                             title: 'Submission',
                         },
                         ...attachments,
