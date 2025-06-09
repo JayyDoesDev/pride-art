@@ -81,6 +81,11 @@ export class Context extends Client {
                 env: 'REDIS_PORT',
                 required: true,
             },
+            {
+                aliases: ['submission_channel_id'],
+                env: 'SUBMISSION_CHANNEL_ID',
+                required: true,
+            },
         );
         this.store = new Store(this);
     }
