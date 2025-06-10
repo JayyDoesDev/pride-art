@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/JayyDoesDev/pride-art/blob/main/.github/assets/marie.png" alt="pride-art" width="500"></p>
+<p align="center"><img src="https://github.com/JayyDoesDev/pride-art/blob/main/.github/assets/marie.png" alt="pride-art" width="300"></p>
 <h1 align="center">Pride Art (Marie)</h1>
 <h2 align="center">🎨 The pride art submission Discord bot for No Text To Speech!</h2>
 
