@@ -86,6 +86,11 @@ export class Context extends Client {
                 env: 'SUBMISSION_CHANNEL_ID',
                 required: true,
             },
+            {
+                aliases: ['vote_channel_id'],
+                env: 'VOTE_CHANNEL_ID',
+                required: true
+            }
         );
         this.store = new Store(this);
     }

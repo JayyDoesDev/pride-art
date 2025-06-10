@@ -61,13 +61,13 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
                     icon: { doing: user.images.icon.doing, url: iconUrl },
                 },
                 participating: user.participating,
-                small_desc: user.small_desc,
+                status: user.status,
                 submitted: user.submitted,
             };
 
             await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
             await message.reply(
-                'Good job! You\'ve now set your **icon**! if you\'re done and have set a banner or don\'t want to submit a banner, say "done"! This will not work if you don\'t have your message set! (say "message" to say a message)',
+                'Good job! You\'ve now set your **icon**! if you\'re done and have set a banner or don\'t want to submit a banner, say "done"! Otherwise, click the banner button!',
             );
             return;
         }
@@ -90,41 +90,13 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
                     icon: user.images.icon,
                 },
                 participating: user.participating,
-                small_desc: user.small_desc,
+                status: user.status,
                 submitted: user.submitted,
             };
 
             await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
             await message.reply(
-                'Good job! You\'ve now set your **banner**! if you\'re done and have set a icon or don\'t want to submit a icon, say "done"! This will not work if you don\'t have your message set! (say "message" to say a message)',
-            );
-            return;
-        }
-
-        if (message.content.toLowerCase().startsWith('message ')) {
-            const user = await this.ctx.store.getUser<User>({ user: message.author.id }, suffix);
-
-            if (!user) {
-                await message.reply(
-                    "Hmm... I couldn't find your registration. Try sending `pride` again to start!",
-                );
-                return;
-            }
-
-            const smallDesc = message.content.slice(8).trim();
-            if (!smallDesc.length) {
-                await message.reply('Please include a message after `message`.');
-                return;
-            }
-
-            const newData: User = {
-                ...user,
-                small_desc: smallDesc,
-            };
-
-            await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
-            await message.reply(
-                "Awesome! I've saved your message. You're almost done—now just upload your icon or banner if you haven't yet, or say \"done\" if you're ready!",
+                'Good job! You\'ve now set your **banner**! if you\'re done and have set a icon or don\'t want to submit a icon, say "done"! Otherwise, click the icon button!',
             );
             return;
         }
@@ -134,8 +106,7 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
             ((await this.ctx.store.getUser<User>({ user: message.author.id }, suffix))?.images
                 .banner?.url ||
                 (await this.ctx.store.getUser<User>({ user: message.author.id }, suffix))?.images
-                    .icon?.url) &&
-            (await this.ctx.store.getUser<User>({ user: message.author.id }, suffix))?.small_desc
+                    .icon?.url)
         ) {
             const user = await this.ctx.store.getUser<User>({ user: message.author.id }, suffix);
             const submittedIcon = user.images.icon.url ? '✅' : '❌';

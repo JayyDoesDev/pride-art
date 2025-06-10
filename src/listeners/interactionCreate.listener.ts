@@ -2,6 +2,7 @@ import {
     APIEmbed,
     ButtonInteraction,
     ButtonStyle,
+    ChannelType,
     Colors,
     ComponentType,
     MessageFlags,
@@ -21,7 +22,7 @@ export type User = {
         icon: { doing: boolean; url: Nullable<string> };
     };
     participating: boolean;
-    small_desc: string;
+    status: string;
     submitted: boolean;
 };
 
@@ -40,9 +41,89 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
             date: 0,
             images: { banner: { doing: false, url: null }, icon: { doing: false, url: null } },
             participating: false,
-            small_desc: null,
+            status: '',
             submitted: false,
         };
+
+        const parts = button.split('_');
+        const action = parts.pop();
+        const name = parts.pop();
+        const uid = parts.pop();
+
+        if (name == 'submit' && (action === 'approve' || action === 'deny')) {
+            user = await this.ctx.store.getUser<User>({ user: uid }, suffix);
+            const channel = await this.ctx.channels.fetch(this.ctx.env.get('vote_channel_id'));
+
+            if (
+                !channel ||
+                (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.GuildForum)
+            ) {
+                await interaction.reply({
+                    content: 'Error! Contact the Ntts staff if you get this message!',
+                    flags: MessageFlags.Ephemeral,
+                });
+                return;
+            }
+
+            if (user.status === 'approved' || user.status === 'denied') {
+                await interaction.reply({
+                    content: 'This user has already been reviewed!',
+                    flags: MessageFlags.Ephemeral,
+                });
+                return;
+            }
+
+            if (action === 'approve') {
+                const attachments: APIEmbed[] = [];
+
+                if (user.images.icon.url)
+                    attachments.push({
+                        color: Colors.DarkVividPink,
+                        image: { url: user.images.icon.url },
+                        title: 'Icon',
+                    });
+                if (user.images.banner.url)
+                    attachments.push({
+                        color: Colors.DarkVividPink,
+                        image: { url: user.images.banner.url },
+                        title: 'Banner',
+                    });
+
+                user.status = 'approved';
+                await this.ctx.store.setUserKey({ user: uid }, user, suffix);
+                const thread = await channel.threads.create({
+                    autoArchiveDuration: 10080,
+                    message: {
+                        embeds: [
+                            {
+                                color: Colors.DarkVividPink,
+                                description: `> Vote below!\n> **Created by: ** <@${uid}>`,
+                                title: 'Pride Art',
+                            },
+                            ...attachments,
+                        ],
+                    },
+                    name: `Pride Art Submission`,
+                    reason: 'New pride art submission',
+                    type: ChannelType.PublicThread,
+                });
+
+                await thread.fetch();
+                const firstMessage = (await thread.messages.fetch({ limit: 1 })).first();
+                if (firstMessage) {
+                    await firstMessage.react('👍');
+                    await firstMessage.react('👎');
+                }
+
+                await interaction.reply({ content: "This user has been approved!", flags: MessageFlags.Ephemeral });
+                return;
+            } else {
+                user.status = 'denied';
+                await this.ctx.store.setUserKey({ user: uid }, user, suffix);
+                await interaction.reply({ content: "This user has been denied!", flags: MessageFlags.Ephemeral });
+                return;
+            }
+        }
 
         switch (button) {
             case `${suffix}_${interaction.user.id}_yes`:
@@ -68,7 +149,7 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                             icon: { doing: false, url: null },
                         },
                         participating: true,
-                        small_desc: null,
+                        status: '',
                         submitted: false,
                     },
                     suffix,
@@ -169,7 +250,7 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                 if (user.images.icon.url)
                     attachments.push({
                         color: Colors.DarkVividPink,
-                        image: { url: user.images.icon.url  },
+                        image: { url: user.images.icon.url },
                         title: 'Icon',
                     });
                 if (user.images.banner.url)
@@ -190,7 +271,7 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                                     type: ComponentType.Button,
                                 },
                                 {
-                                    customId: `${suffix}_${interaction.user.id}_deny`,
+                                    customId: `${suffix}_${interaction.user.id}_submit_deny`,
                                     label: 'Deny',
                                     style: ButtonStyle.Danger,
                                     type: ComponentType.Button,
@@ -202,7 +283,7 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                     embeds: [
                         {
                             color: Colors.DarkVividPink,
-                            description: `> **Author:** ${interaction.user}(${interaction.user.id})\n> **Icon:** ${submittedIcon}\n> **Banner:** ${submittedBanner}\n> **Comment:** ${user.small_desc}`,
+                            description: `> **Author:** ${interaction.user}(${interaction.user.id})\n> **Icon:** ${submittedIcon}\n> **Banner:** ${submittedBanner}`,
                             title: 'Submission',
                         },
                         ...attachments,
