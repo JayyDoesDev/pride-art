@@ -169,7 +169,7 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                 if (user.images.icon.url)
                     attachments.push({
                         color: Colors.DarkVividPink,
-                        image: { url: user.images.icon.url },
+                        image: { url: user.images.icon.url  },
                         title: 'Icon',
                     });
                 if (user.images.banner.url)
