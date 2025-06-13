@@ -1,5 +1,6 @@
 import {
     APIEmbed,
+    AttachmentBuilder,
     ButtonInteraction,
     ButtonStyle,
     ChannelType,
@@ -74,34 +75,28 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
             }
 
             if (action === 'approve') {
-                const attachments: APIEmbed[] = [];
+                const files: AttachmentBuilder[] = [];
 
-                if (user.images.icon.url)
-                    attachments.push({
-                        color: Colors.DarkVividPink,
-                        image: { url: user.images.icon.url },
-                        title: 'Icon',
-                    });
-                if (user.images.banner.url)
-                    attachments.push({
-                        color: Colors.DarkVividPink,
-                        image: { url: user.images.banner.url },
-                        title: 'Banner',
-                    });
+                if (user.images.icon.url) {
+                    const res = await fetch(user.images.icon.url);
+                    const buffer = Buffer.from(await res.arrayBuffer());
+                    files.push(new AttachmentBuilder(buffer, { name: 'icon.png' }));
+                }
+
+                if (user.images.banner.url) {
+                    const res = await fetch(user.images.banner.url);
+                    const buffer = Buffer.from(await res.arrayBuffer());
+                    files.push(new AttachmentBuilder(buffer, { name: 'banner.png' }));
+                }
 
                 user.status = 'approved';
                 await this.ctx.store.setUserKey({ user: uid }, user, suffix);
+
                 const thread = await channel.threads.create({
                     autoArchiveDuration: 10080,
                     message: {
-                        embeds: [
-                            {
-                                color: Colors.DarkVividPink,
-                                description: `> Vote below!\n> **Created by: ** <@${uid}>`,
-                                title: 'Pride Art',
-                            },
-                            ...attachments,
-                        ],
+                        content: `> Vote below!\n> **Created by: ** <@${uid}>`,
+                        files,
                     },
                     name: `Pride Art Submission`,
                     reason: 'New pride art submission',
@@ -115,12 +110,18 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                     await firstMessage.react('👎');
                 }
 
-                await interaction.reply({ content: "This user has been approved!", flags: MessageFlags.Ephemeral });
+                await interaction.reply({
+                    content: 'This user has been approved!',
+                    flags: MessageFlags.Ephemeral,
+                });
                 return;
             } else {
                 user.status = 'denied';
                 await this.ctx.store.setUserKey({ user: uid }, user, suffix);
-                await interaction.reply({ content: "This user has been denied!", flags: MessageFlags.Ephemeral });
+                await interaction.reply({
+                    content: 'This user has been denied!',
+                    flags: MessageFlags.Ephemeral,
+                });
                 return;
             }
         }
