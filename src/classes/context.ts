@@ -90,6 +90,16 @@ export class Context extends Client {
                 aliases: ['vote_channel_id'],
                 env: 'VOTE_CHANNEL_ID',
                 required: true
+            },
+            {
+                aliases: ['amari_guild_id'],
+                env: 'AMARI_GUILD_ID',
+                required: true
+            },
+            {
+                aliases: ['amari_api_key'],
+                env: 'AMARI_API_KEY',
+                required: true
             }
         );
         this.store = new Store(this);

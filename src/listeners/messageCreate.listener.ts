@@ -16,6 +16,14 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
         if (!message.channel.isDMBased()) return;
 
         if (message.content === 'pride') {
+            const user = await fetch(`https://amaribot.com/api/v1/guild/${this.ctx.env.get('amari_guild_id')}/member/${message.author.id}`, {
+                headers: {
+                    Authorization: this.ctx.env.get('amari_api_key'),
+                },
+            });
+
+            const userData = await user.json();
+            if (userData.level < 10) 
             if (await this.ctx.store.findUser({ user: message.author.id }, suffix)) return;
             await message.reply({
                 components: [
