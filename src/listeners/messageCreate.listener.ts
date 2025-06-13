@@ -23,7 +23,7 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
             });
 
             const userData = await user.json();
-            if (userData.level < 10) 
+            if (userData.level < 10) return;
             if (await this.ctx.store.findUser({ user: message.author.id }, suffix)) return;
             await message.reply({
                 components: [
