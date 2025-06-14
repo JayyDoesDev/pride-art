@@ -16,14 +16,20 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
         if (!message.channel.isDMBased()) return;
 
         if (message.content === 'pride') {
-            const user = await fetch(`https://amaribot.com/api/v1/guild/${this.ctx.env.get('amari_guild_id')}/member/${message.author.id}`, {
-                headers: {
-                    Authorization: this.ctx.env.get('amari_api_key'),
+            const user = await fetch(
+                `https://amaribot.com/api/v1/guild/${this.ctx.env.get('amari_guild_id')}/member/${message.author.id}`,
+                {
+                    headers: {
+                        Authorization: this.ctx.env.get('amari_api_key'),
+                    },
                 },
-            });
+            );
 
             const userData = await user.json();
-            if (userData.level < 10) return;
+            if (userData.level < 10) {
+                await message.reply('Uh oh! You need to be at least level 10 to participate!');
+                return;
+            }
             if (await this.ctx.store.findUser({ user: message.author.id }, suffix)) return;
             await message.reply({
                 components: [
@@ -75,7 +81,7 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
 
             await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
             await message.reply(
-                'Good job! You\'ve now set your **icon**! if you\'re done and have set a banner or don\'t want to submit a banner, say "done"! Otherwise, click the banner button!',
+                "Good job! You've now set your **icon**! if you're done and have set a banner or don't want to submit a banner, say \"done\"! Otherwise, click the banner button!",
             );
             return;
         }
@@ -104,7 +110,7 @@ export default class MessageCreateListener extends Listener<'messageCreate'> {
 
             await this.ctx.store.setUserKey({ user: message.author.id }, newData, suffix);
             await message.reply(
-                'Good job! You\'ve now set your **banner**! if you\'re done and have set a icon or don\'t want to submit a icon, say "done"! Otherwise, click the icon button!',
+                "Good job! You've now set your **banner**! if you're done and have set a icon or don't want to submit a icon, say \"done\"! Otherwise, click the icon button!",
             );
             return;
         }
