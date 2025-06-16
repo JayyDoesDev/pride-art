@@ -107,7 +107,6 @@ export default class InteractionCreateListener extends Listener<'interactionCrea
                 const firstMessage = (await thread.messages.fetch({ limit: 1 })).first();
                 if (firstMessage) {
                     await firstMessage.react('👍');
-                    await firstMessage.react('👎');
                 }
 
                 await interaction.reply({
